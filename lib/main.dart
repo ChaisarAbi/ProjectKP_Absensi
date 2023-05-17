@@ -31,37 +31,51 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const HomePage(),
+      home: const AuthWrapper(),
     );
   }
 }
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+// class HomePage extends StatefulWidget {
+//   const HomePage({super.key});
 
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
+//   @override
+//   State<HomePage> createState() => _HomePageState();
+// }
 
-class _HomePageState extends State<HomePage> {
-  @override
-  Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        Provider<FirebaseAuthMethods>(
-          create: (_)=> FirebaseAuthMethods(FirebaseAuth.instance),
-        ),
-        StreamProvider(
-          create: (context) => context.read<FirebaseAuthMethods>().authState
-        , initialData: null,
-        )
-      ],
-      child: const Scaffold(
-        body: AuthWrapper(),
-      ),
-    );
-  }
-}
+// class _HomePageState extends State<HomePage> {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MultiProvider(
+//       providers: [
+//         Provider<FirebaseAuthMethods>(
+//           create: (_)=> FirebaseAuthMethods(FirebaseAuth.instance),
+//         ),
+//         StreamProvider(
+//           create: (context) => context.read<FirebaseAuthMethods>().authState
+//         , initialData: null,
+//         )
+//       ],
+//       child: const Scaffold(
+//         body: AuthWrapper(),
+//       ),
+//     );
+//   }
+// }
+
+// class AuthWrapper extends StatelessWidget {
+//   const AuthWrapper({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final firebaseUser = context.watch<User?>();
+
+//     if(firebaseUser != null){
+//       return LandingPage();
+//     }
+//     return const EmailPasswordLogin();
+//   }
+// }
 
 class AuthWrapper extends StatelessWidget {
   const AuthWrapper({super.key});
@@ -71,8 +85,38 @@ class AuthWrapper extends StatelessWidget {
     final firebaseUser = context.watch<User?>();
 
     if(firebaseUser != null){
-      return LandingPage();
+      return const EmailPasswordLogin();
     }
-    return const EmailPasswordLogin();
+    return const LandingPage(showAttendance: true);
   }
 }
+
+// class LandingPage extends StatefulWidget {
+//   final bool showAttendance;
+
+//   const LandingPage({Key? key, this.showAttendance = false}) : super(key: key);
+
+//   @override
+//   _LandingPageState createState() => _LandingPageState();
+// }
+
+// class _LandingPageState extends State<LandingPage> {
+  
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: const Text('Entry Project'),
+//       ),
+//       body: Column(
+//         children: [
+//           if (widget.showAttendance) ...[
+//             // Tampilkan halaman absensi di sini
+//           ] else ...[
+//             // Tampilkan halaman informasi di sini
+//           ],
+//         ],
+//       ),
+//     );
+//   }
+// }

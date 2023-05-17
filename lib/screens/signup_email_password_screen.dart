@@ -1,5 +1,4 @@
 import 'package:entry_project/screens/login.dart';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -7,12 +6,12 @@ import '../services/firebase_auth_methods.dart';
 import '../widgets/custom_textfield.dart';
 
 class EmailPasswordSignup extends StatefulWidget {
-  static String routeName = '/signup-email-password';
   const EmailPasswordSignup({Key? key}) : super(key: key);
 
   @override
   _EmailPasswordSignupState createState() => _EmailPasswordSignupState();
 }
+
 
 class _EmailPasswordSignupState extends State<EmailPasswordSignup> {
   final TextEditingController emailController = TextEditingController();
@@ -21,18 +20,37 @@ class _EmailPasswordSignupState extends State<EmailPasswordSignup> {
   final TextEditingController nisController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
 
+  bool _isLoading = false;
+
   void signUpUser() async {
-    FirebaseAuthMethods(FirebaseAuth.instance).signUpWithEmail(
-        context: context,
-        email: emailController.text,
-        password: passwordController.text,
-        additionalInfo: {
-          'name': nameController.text,
-          'nis': nisController.text,
-          'phone': phoneController.text,
-        });
-    Navigator.pushNamed(context, EmailPasswordLogin.routeName);
-  }
+  setState(() {
+    isLoading = true;
+  });
+
+  FirebaseAuthMethods(FirebaseAuth.instance).signUpWithEmail(
+    context: context,
+    email: emailController.text,
+    password: passwordController.text,
+    additionalInfo: {
+      'name': nameController.text,
+      'nis': nisController.text,
+      'phone': phoneController.text,
+    },
+  );
+
+  await Future.delayed(const Duration(seconds: 2));
+
+  setState(() {
+    isLoading = false;
+  });
+
+  Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => const EmailPasswordLogin()),
+  );
+}
+
+bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -83,10 +101,14 @@ class _EmailPasswordSignupState extends State<EmailPasswordSignup> {
               controller: phoneController,
               hintText: 'Enter your phone number',
             ),
+          ),if (isLoading)
+          const Align(
+            alignment: Alignment.center,
+            child: CircularProgressIndicator(),
           ),
           const SizedBox(height: 40),
           ElevatedButton(
-            onPressed: signUpUser,
+            onPressed: _isLoading ? null : signUpUser,
             style: ButtonStyle(
               backgroundColor: MaterialStateProperty.all(Colors.blue),
               textStyle: MaterialStateProperty.all(
@@ -96,11 +118,16 @@ class _EmailPasswordSignupState extends State<EmailPasswordSignup> {
                 Size(MediaQuery.of(context).size.width / 2.5, 50),
               ),
             ),
-            child: const Text(
-              "Sign Up",
-              style: TextStyle(color: Colors.white, fontSize: 16),
-            ),
+            child: _isLoading
+                ? const CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  )
+                : const Text(
+                    "Sign Up",
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
           ),
+          
           const SizedBox(height: 40),
           Text.rich(
             TextSpan(
@@ -117,7 +144,7 @@ class _EmailPasswordSignupState extends State<EmailPasswordSignup> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const EmailPasswordLogin()),
+                          builder: (context) => const EmailPasswordLogin(),),
                       );
                     },
                 ),
@@ -125,7 +152,9 @@ class _EmailPasswordSignupState extends State<EmailPasswordSignup> {
             ),
           )
         ],
+        
       ),
+      
     );
   }
 }

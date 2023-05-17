@@ -4,11 +4,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../widgets/custom_textfield.dart';
+import 'landing_page.dart';
 
 class EmailPasswordLogin extends StatefulWidget {
   static String routeName = '/login-email-password';
   const EmailPasswordLogin({Key? key}) : super(key: key);
-
   @override
   _EmailPasswordLoginState createState() => _EmailPasswordLoginState();
 }
@@ -30,6 +30,11 @@ class _EmailPasswordLoginState extends State<EmailPasswordLogin> {
     setState(() {
       _isLoading = false;
     });
+    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => LandingPage()),
+                      );
   }
 
   @override

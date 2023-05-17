@@ -25,34 +25,3 @@ class DaftarMataPelajaran extends StatelessWidget {
     );
   }
 }
-final List<String> _mataPelajaran = [
-    'Matematika',
-    'Fisika',
-    'Kimia',
-    'Biologi'
-  ];
-
-  final List<String> _siswa = [
-    'John',
-    'Doe',
-    'Jane',
-    'Doe',
-    'Mark',
-    'Johnson',
-    'Emily',
-    'Smith',
-    'Tom',
-    'Lee',
-    'Sarah',
-    'Taylor',
-    'David',
-    'Brown',
-    'Laura',
-    'Wilson'
-  ];
-
-  List<String> _siswaTerpilih = [];
-
-  Map<String, bool> _siswaHadir = {};
-
-  String? _mataPelajaranTerpilih;
