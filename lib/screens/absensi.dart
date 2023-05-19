@@ -32,7 +32,6 @@ class _BiodataPageState extends State<BiodataPage> {
       _no_telp = userData.data()!['phone'];
     });
   }
-  
 
   @override
   void initState() {
@@ -106,9 +105,9 @@ class AbsensiTab extends StatefulWidget {
 class _AbsensiTabState extends State<AbsensiTab> {
   bool _isLoggedIn =
       false; // variable untuk mengecek apakah user sudah login atau belum
-  late String _nama;
-  String _nis = '';
-  String _no_telp = '';
+  late String _nama = '';
+  late  String _nis = '';
+  late String _no_telp = '';
 
   final List<String> _mataPelajaran = [
     'Matematika',
@@ -116,7 +115,6 @@ class _AbsensiTabState extends State<AbsensiTab> {
     'Kimia',
     'Biologi'
   ];
-
 
   final List<String> _siswa = [
     'Bagas priambodo',
@@ -143,39 +141,6 @@ class _AbsensiTabState extends State<AbsensiTab> {
   String? _mataPelajaranTerpilih;
 
   bool _sedangMenyimpanAbsensi = false;
-
-  void _logout() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const EmailPasswordLogin()),
-    );
-  }
-
-  Widget _buildLoginButton() {
-    return Center(
-      child: ElevatedButton(
-        onPressed: () async {
-          final result = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const LoginPage(),
-            ),
-          );
-          if (result != null) {
-            setState(() {
-              _isLoggedIn = true;
-            });
-          }
-        },
-        child: const Text('Login'),
-      ),
-    );
-  }
-
-  Future<void> _dbSiswa(BuildContext context) async{
-    final _siswaDB = FirebaseFirestore.instance.collection('absensi');
-  }
-
   Future<void> _simpanAbsensi(BuildContext context) async {
     setState(() {
       _sedangMenyimpanAbsensi = true;
@@ -220,6 +185,12 @@ class _AbsensiTabState extends State<AbsensiTab> {
     }
   }
 
+  void _logout() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const EmailPasswordLogin()),
+    );
+  }
   Future<void> _getCurrentUserData() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
@@ -237,10 +208,30 @@ class _AbsensiTabState extends State<AbsensiTab> {
     });
   }
 
+  Widget _buildLoginButton() {
+    return Center(
+      child: ElevatedButton(
+        onPressed: () async {
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const LoginPage(),
+            ),
+          );
+          if (result != null) {
+            setState(() {
+              _isLoggedIn = true;
+            });
+          }
+        },
+        child: const Text('Login'),
+      ),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
-    _getCurrentUserData();
   }
 
   @override
@@ -250,61 +241,8 @@ class _AbsensiTabState extends State<AbsensiTab> {
         : _buildLoginButton(); // tampilkan tombol login jika user belum login
   }
 
-  Widget _buildBiodata() {
-    return Container(
-      padding: const EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10.0),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          const Text(
-            'Biodata',
-            style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 20.0),
-          Row(
-            children: [
-              const Text('Nama : ', style: TextStyle(fontSize: 16.0)),
-              Text(_nama,
-                  style: const TextStyle(
-                      fontSize: 16.0, fontWeight: FontWeight.bold)),
-            ],
-          ),
-          const SizedBox(height: 10.0),
-          Row(
-            children: [
-              const Text('NISN : ', style: TextStyle(fontSize: 16.0)),
-              Text(_nis,
-                  style: const TextStyle(
-                      fontSize: 16.0, fontWeight: FontWeight.bold)),
-            ],
-          ),
-          const SizedBox(height: 10.0),
-          Row(
-            children: [
-              const Text('Nomor Telepon : ', style: TextStyle(fontSize: 16.0)),
-              Text(_no_telp,
-                  style: const TextStyle(
-                      fontSize: 16.0, fontWeight: FontWeight.bold)),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildAbsensiTab() {
+    
     return Container(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -506,7 +444,7 @@ class _LoginPageState extends State<LoginPage> {
 }
 
 class InformasiTab extends StatefulWidget {
-  const InformasiTab({super.key});
+  const InformasiTab({Key? key}) : super(key: key);
 
   @override
   _InformasiTabState createState() => _InformasiTabState();
@@ -514,44 +452,69 @@ class InformasiTab extends StatefulWidget {
 
 class _InformasiTabState extends State<InformasiTab> {
   // Deklarasi variabel untuk menyimpan data siswa dari database
-  late List<DocumentSnapshot> _siswaList;
+  List<DocumentSnapshot>? _siswaList;
 
   // Method untuk mengambil data siswa dari database dan menyimpannya ke dalam variabel
   Future<void> _getSiswaList() async {
-  QuerySnapshot snapshot = await FirebaseFirestore.instance.collection('absensi').get();
-  setState(() {
-    _siswaList = snapshot.docs;
-  });
-}
+    QuerySnapshot snapshot = await FirebaseFirestore.instance
+        .collection('absensi')
+        .get(const GetOptions(source: Source.server));
+
+    setState(() {
+      _siswaList = snapshot.docs;
+    });
+  }
 
   // Method untuk menampilkan daftar siswa pada widget ListView.builder
- Widget _buildSiswaList() {
+  Widget _buildSiswaList() {
   if (_siswaList == null) {
     return const Center(child: CircularProgressIndicator());
+  } else if (_siswaList!.isEmpty) {
+    return const Center(child: Text('No data available'));
   } else {
     return ListView.builder(
-      itemCount: _siswaList.length,
+      itemCount: _siswaList!.length,
       itemBuilder: (context, index) {
-        DocumentSnapshot siswa = _siswaList[index];
-        return ListTile(
-          title: Text(siswa['nama_siswa']),
-        );
+        DocumentSnapshot siswa = _siswaList![index];
+        Map<String, dynamic> siswaData = siswa.data() as Map<String, dynamic>;
+
+        // Check if siswaData contains the field
+        if (siswaData.containsKey('nama_siswa')) {
+          dynamic namaSiswa = siswaData['nama_siswa'];
+          if (namaSiswa is String) {
+            return ListTile(
+              title: Text(namaSiswa),
+            );
+          } else {
+            print("Field 'nama_siswa' has a non-string value in document: ${siswa.id}");
+            // Handle non-string value
+            return const ListTile(
+              title: Text('Field \'nama_siswa\' has a non-string value'),
+            );
+          }
+        } else {
+          print("Field 'nama_siswa' does not exist in document: ${siswa.id}");
+          return const ListTile(
+            title: Text('Field \'nama_siswa\' does not exist'),
+          );
+        }
       },
     );
   }
 }
 
-@override
-void initState() {
-  super.initState();
-  _siswaList = []; // Initialize _siswaList here
-  _getSiswaList().then((_) {
-    setState(() {}); // Trigger rebuild after data is fetched
-  });
-}
 
 
-  @override 
+  @override
+  void initState() {
+    super.initState();
+    _siswaList = null; // Initialize _siswaList as null
+    _getSiswaList().then((_) {
+      setState(() {}); // Trigger rebuild after data is fetched
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16.0),
@@ -562,9 +525,10 @@ void initState() {
           const SizedBox(height: 10.0),
           // Tampilkan daftar siswa pada widget ListView.builder
           Expanded(
-              child: _siswaList != null
-                  ? _buildSiswaList()
-                  : const Center(child: CircularProgressIndicator())),
+            child: _siswaList != null
+                ? _buildSiswaList()
+                : const Center(child: CircularProgressIndicator()),
+          ),
         ],
       ),
     );
